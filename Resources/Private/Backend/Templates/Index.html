@@ -1,0 +1,22 @@
+{namespace co = TYPO3\CMS\Core\ViewHelpers}
+
+<h1><f:translate key="mlang_tabs_tab" /></h1>
+
+<f:be.infobox title="{f:translate(key: 'index.headline')}" message="{f:translate(key: 'index.explanation')}" state="-1" iconName="info" />
+
+<f:form action="collect">
+    <div class="form-group">
+        <label for="t3-interfaces">Extension</label>
+        <f:form.select name="extension" class="form-control">
+            <f:for each="{extensions}" as="extension">
+                <f:form.select.option value="{extension}">{extension}</f:form.select.option>
+            </f:for>
+        </f:form.select>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-default">
+            <co:icon identifier="actions-search" />
+            {f:translate(key: 'index.button')}
+        </button>
+    </div>
+</f:form>

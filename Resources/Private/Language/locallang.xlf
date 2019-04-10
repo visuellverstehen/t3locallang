@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+    <file source-language="en" datatype="plaintext" original="messages" date="2019-04-08T00:00:00Z" product-name="t3locallang">
+        <header/>
+        <body>
+            <trans-unit id="mlang_tabs_tab">
+                <source>t3locallang</source>
+            </trans-unit>
+            <trans-unit id="mlang_labels_tabdescr">
+                <source></source>
+            </trans-unit>
+
+            <trans-unit id="index.headline">
+                <source>How it works</source>
+            </trans-unit>
+            <trans-unit id="index.explanation">
+                <source>This extension scans the default location for language files
+                (/Resources/Private/Language/{de}.locallang.xlf) and collects useful
+                information about them.</source>
+            </trans-unit>
+            <trans-unit id="index.button">
+                <source>Collect data</source>
+            </trans-unit>
+
+            <trans-unit id="collect.headline">
+                <source>Report</source>
+            </trans-unit>
+            <trans-unit id="collect.back-button">
+                <source>Back to start</source>
+            </trans-unit>
+            <trans-unit id="collect.reload-button">
+                <source>Re-Collect data</source>
+            </trans-unit>
+            <trans-unit id="collect.table.language">
+                <source>Language</source>
+            </trans-unit>
+            <trans-unit id="collect.table.entries">
+                <source>Entries</source>
+            </trans-unit>
+            <trans-unit id="collect.table.not_used">
+                <source>Not used</source>
+            </trans-unit>
+            <trans-unit id="collect.table.missing">
+                <source>Missing</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

@@ -1,0 +1,42 @@
+<h1><f:translate key="collect.headline" /></h1>
+<f:flashMessages />
+<table class="table">
+    <thead>
+        <tr>
+            <th>{f:translate(key: 'collect.table.language')}</th>
+            <th>{f:translate(key: 'collect.table.entries')}</th>
+            <th>{f:translate(key: 'collect.table.not_used')}</th>
+            <th>{f:translate(key: 'collect.table.missing')}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <f:for each="{locales}" as="locale" key="language">
+            <tr>
+                <th>{language}</th>
+                <td>{locale.entries -> f:count()}</td>
+                <td class="{f:if(condition: '{locale.notUsed -> f:count()} === 0', then: 'bg-success', else: 'bg-warning')}">{locale.notUsed -> f:count()}</td>
+                <td class="{f:if(condition: '{locale.missing -> f:count()} === 0', then: 'bg-success', else: 'bg-danger')}">{locale.missing -> f:count()}</td>
+            </tr>
+        </f:for>
+    </tbody>
+</table>
+
+<f:for each="{locales}" as="locale" key="language">
+    <f:if condition="{locale.missing -> f:count()} !== 0">
+        <table class="table">
+            <caption>{language}</caption>
+            <thead>
+                <tr>
+                    <th>{f:translate(key: 'collect.table.missing')}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <f:for each="{locale.missing}" as="missing">
+                    <tr>
+                        <td>{missing}</td>
+                    </tr>
+                </f:for>
+            </tbody>
+        </table>
+    </f:if>
+</f:for>
