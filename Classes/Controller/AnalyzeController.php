@@ -8,12 +8,12 @@ use TYPO3\CMS\Backend\Template\Components\ButtonBar;
 use TYPO3\CMS\Backend\View\BackendTemplateView;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Imaging\Icon;
-use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Localization\LocalizationFactory;
-use TYPO3\CMS\Core\Messaging\AbstractMessage;
+use TYPO3\CMS\Core\Utility\CsvUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use VV\T3locallang\Domain\Model\Translation;
 
 class AnalyzeController extends ActionController
 {
@@ -40,61 +40,141 @@ class AnalyzeController extends ActionController
     }
 
     /**
+     * Language handling withing the core can be found here:
      * @see \TYPO3\CMS\Core\Localization\LocalizationFactory
      */
     public function collectAction()
     {
         $this->registerDocHeaderButtons();
         $extKey = $this->request->getArgument('extension');
+
+        $this->view->assign(
+            'translations',
+            $this->collectTranslations($extKey)
+        );
+        $this->view->assign(
+            'locales',
+            $this->findLocales($extKey)
+        );
+    }
+
+    public function exportAction()
+    {
+        $this->view = null;
+
+        $extKey = $this->request->getArgument('extension');
+        $locales = $this->findLocales($extKey);
+
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename=export.csv');
+
+        echo CsvUtility::csvValues(
+            array_merge([''], $locales)
+        );
+
+        foreach ($this->collectTranslations($extKey) as $translation) {
+            if ($translation->isUsed()) {
+                $row = [
+                    $translation->getKey()
+                ];
+
+                foreach ($locales as $locale) {
+                    $row[$locale] = $translation->getTranslations()[$locale];
+                }
+
+                echo PHP_EOL . CsvUtility::csvValues($row);
+            }
+        }
+
+        die();
+    }
+
+    /**
+     * @param string $extKey
+     * @return array
+     */
+    protected function collectTranslations($extKey): array
+    {
+        $locales = $this->findLocales($extKey);
+        $translations = [];
         $locallangPath = GeneralUtility::getFileAbsFileName(
             'EXT:' . GeneralUtility::camelCaseToLowerCaseUnderscored($extKey) . '/Resources/Private/Language/'
         );
         $locallangFiles = GeneralUtility::getFilesInDir($locallangPath, 'xlf');
-        $locales = [];
+
+        $defaultTranslations = $this->localizationFactory->getParsedData(
+            $locallangPath . 'locallang.xlf',
+            'default'
+        )['default'];
+
+        foreach ($defaultTranslations as $key => $defaultTranslationEntry) {
+            $translation = new Translation;
+            $translation->setKey($key);
+            $translation->addTranslation($defaultTranslationEntry[0]['source']);
+
+            $translations[$key] = $translation;
+        }
 
         foreach ($locallangFiles as $file) {
             $locale = str_replace('.locallang.xlf', '', $file);
 
-            if ($locale === 'locallang.xlf') {
-                $locale = 'default';
-            }
+            if ($locale !== 'locallang.xlf') {
+                $localeTranslanslations = $this->localizationFactory->getParsedData(
+                    $locallangPath . $file,
+                    $locale
+                )[$locale];
 
-            $locales[$locale]['notUsed'] = [];
-            $locales[$locale]['missing'] = [];
-            $locales[$locale]['entries'] = $this->localizationFactory->getParsedData(
-                $locallangPath . $file,
-                $locale
-            )['default'];
+                foreach ($localeTranslanslations as $key => $localeTranslationEntry) {
+                    if ($translations[$key]) {
+                        $translations[$key]->addTranslation($localeTranslationEntry[0]['target'], $locale);
+                    } else {
+                        $translation = new Translation;
+                        $translation->setKey($key);
+                        $translation->setTranslations([
+                            'default' => $localeTranslationEntry[0]['source'],
+                            $locale => $localeTranslationEntry[0]['target'],
+                        ]);
 
-            foreach ($locales[$locale]['entries'] as $key => $entry) {
-                exec('grep -r "' . $key . '" ' . Environment::getExtensionsPath() . '/' . $extKey . ' --exclude="*.xlf"', $output);
-
-                if (empty($output)) {
-                    $locales[$locale]['notUsed'][] = $key;
-                }
-
-                $output = null;
-            }
-        }
-
-        $default = $locales['default'];
-
-        foreach ($locales as $key => $data) {
-            if ($key !== 'default') {
-                if ($default['entries'] === null || $data['entries'] === null) {
-                    $this->addFlashMessage('Couldn\'t compare ' . $file, '', AbstractMessage::WARNING);
-                } else {
-                    $locales[$key]['missing'] = array_diff(
-                        array_keys($default['entries']),
-                        array_keys($data['entries'])
-                    );
-
-                    $locales[$key]['missing'] = array_diff($locales[$key]['missing'], $default['notUsed']);
+                        $translations[$key] = $translation;
+                    }
                 }
             }
         }
 
-        $this->view->assign('locales', $locales);
+        foreach ($translations as $translation) {
+            exec('grep -r "' . $translation->getKey() . '" ' . Environment::getExtensionsPath() . '/' . $extKey . ' --exclude="*.xlf"', $output);
+
+            if (!empty($output) && $translation->isUsed() === false) {
+                $translation->setUsed(true);
+            }
+
+            $output = null;
+        }
+
+        return $translations;
+    }
+
+    /**
+     * @param string $extKey
+     * @return array
+     */
+    protected function findLocales($extKey): array
+    {
+        $locales = ['default'];
+        $locallangPath = GeneralUtility::getFileAbsFileName(
+            'EXT:' . GeneralUtility::camelCaseToLowerCaseUnderscored($extKey) . '/Resources/Private/Language/'
+        );
+        $locallangFiles = GeneralUtility::getFilesInDir($locallangPath, 'xlf');
+
+        foreach ($locallangFiles as $file) {
+            $locale = str_replace('.locallang.xlf', '', $file);
+
+            if ($locale !== 'locallang.xlf') {
+                $locales[] = $locale;
+            }
+        }
+
+        return $locales;
     }
 
     /**
@@ -108,8 +188,9 @@ class AnalyzeController extends ActionController
         if ($this->request->getControllerActionName() === 'collect') {
             $uriBuilder = $this->objectManager->get(UriBuilder::class);
             $buttonBar = $this->view->getModuleTemplate()->getDocHeaderComponent()->getButtonBar();
-            $lang = $this->getLanguageService();
+            $lang = $GLOBALS['LANG'];
             $pluginName = $this->request->getPluginName();
+            $iconFactory = $this->view->getModuleTemplate()->getIconFactory();
 
             // CLOSE button
             $closeButton = $buttonBar->makeLinkButton();
@@ -117,7 +198,7 @@ class AnalyzeController extends ActionController
             $closeButton->setHref((string)$uriBuilder->buildUriFromRoute($pluginName));
             $closeButton->setTitle($lang->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.goBack'));
             $closeButton->setIcon(
-                $this->view->getModuleTemplate()->getIconFactory()->getIcon(
+                $iconFactory->getIcon(
                     'actions-close',
                     Icon::SIZE_SMALL
                 )
@@ -135,22 +216,33 @@ class AnalyzeController extends ActionController
             );
             $reloadButton->setTitle($lang->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.reload'));
             $reloadButton->setIcon(
-                $this->view->getModuleTemplate()->getIconFactory()->getIcon(
+                $iconFactory->getIcon(
                     'actions-refresh',
+                    Icon::SIZE_SMALL
+                )
+            );
+
+            // EXPORT button
+            $exportButton = $buttonBar->makeLinkButton();
+            $exportButton->setShowLabelText(true);
+            $exportButton->setHref(
+                (string)$uriBuilder->buildUriFromRoute($pluginName, [
+                    'tx_' . $this->request->getControllerExtensionKey() . '_' . strtolower($pluginName) . '[controller]' => 'Analyze',
+                    'tx_' . $this->request->getControllerExtensionKey() . '_' . strtolower($pluginName) . '[action]' => 'export',
+                    'tx_' . $this->request->getControllerExtensionKey() . '_' . strtolower($pluginName) . '[extension]' => $this->request->getArgument('extension'),
+                ])
+            );
+            $exportButton->setTitle($lang->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.csv'));
+            $exportButton->setIcon(
+                $iconFactory->getIcon(
+                    'actions-document-export-csv',
                     Icon::SIZE_SMALL
                 )
             );
 
             $buttonBar->addButton($closeButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
             $buttonBar->addButton($reloadButton, ButtonBar::BUTTON_POSITION_LEFT, 2);
+            $buttonBar->addButton($exportButton, ButtonBar::BUTTON_POSITION_RIGHT);
         }
-    }
-
-    /**
-     * @return LanguageService
-     */
-    protected function getLanguageService(): LanguageService
-    {
-        return $GLOBALS['LANG'];
     }
 }

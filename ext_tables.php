@@ -11,7 +11,7 @@ if (TYPO3_MODE === 'BE') {
         'Pi1',
         '',
         [
-            'Analyze' => 'index, collect',
+            'Analyze' => 'index, collect, export',
         ],
         [
             'access' => 'admin',
