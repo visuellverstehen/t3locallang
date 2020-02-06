@@ -93,7 +93,7 @@ class AnalyzeController extends ActionController
      * @param string $extKey
      * @return array
      */
-    protected function collectTranslations($extKey): array
+    protected function collectTranslations(string $extKey): array
     {
         $locales = $this->findLocales($extKey);
         $translations = [];
@@ -141,14 +141,19 @@ class AnalyzeController extends ActionController
             }
         }
 
-        foreach ($translations as $translation) {
-            exec('grep -r "' . $translation->getKey() . '" ' . Environment::getExtensionsPath() . '/' . $extKey . ' --exclude="*.xlf"', $output);
+        $labelKeys = array_map(function($o) {
+            return $o->getKey();
+        }, $translations);
 
-            if (!empty($output) && $translation->isUsed() === false) {
-                $translation->setUsed(true);
-            }
+        exec('grep -r -E "' . implode('|', $labelKeys) . '" ' . Environment::getExtensionsPath() . '/' . $extKey . ' --exclude="*.xlf" --exclude="*.js" --exclude="*.css" --exclude="*.scss"', $hits);
 
-            $output = null;
+        foreach ($hits as $hit) {
+            array_filter($translations, function($translation) use ($hit) {
+                if(strpos($hit, $translation->getKey())) {
+                    $translation->setUsed(true);
+                    return $translation;
+                }
+            });
         }
 
         return $translations;
@@ -158,7 +163,7 @@ class AnalyzeController extends ActionController
      * @param string $extKey
      * @return array
      */
-    protected function findLocales($extKey): array
+    protected function findLocales(string $extKey): array
     {
         $locales = ['default'];
         $locallangPath = GeneralUtility::getFileAbsFileName(
