@@ -20,7 +20,7 @@ jobs:
       - name: Build extension files
         run: composer extension-release
 
-      # - name: Publish to TER
-      #   run: |
-      #   TAG_MESSAGE=`git tag -n10 -l $(git describe --tags) | sed 's/^[0-9.]*[ ]*//g'`
-      #   .config/composer/vendor/bin/ter-client upload t3locallang . -u "${{ secrets.TYPO3_ORG_USERNAME }}" -p "${{ secrets.TYPO3_ORG_PASSWORD }}" -m "$TAG_MESSAGE"
+      - name: Publish to TER
+        run: |
+          TAG_MESSAGE=`git tag -n10 -l $(git describe --tags) | sed 's/^[0-9.]*[ ]*//g'`
+          ech $TAG_MESSAGE
