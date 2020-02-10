@@ -23,10 +23,5 @@ jobs:
       - name: Build extension files
         run: composer extension-release
 
-      - name: Validate tag message
-        run: TAG_MESSAGE=$(cat TAG_MESSAGE) && echo $TAG_MESSAGE
-
-      # - name: Publish to TER
-      #   run: |
-
-      #     .config/composer/vendor/bin/ter-client upload t3locallang . -u "${{ secrets.TYPO3_ORG_USERNAME }}" -p "${{ secrets.TYPO3_ORG_PASSWORD }}" -m "$TAG_MESSAGE"
+      - name: Publish to TER
+        run: .config/composer/vendor/bin/ter-client upload t3locallang . -u "${{ secrets.TYPO3_ORG_USERNAME }}" -p "${{ secrets.TYPO3_ORG_PASSWORD }}" -m "$(cat TAG_MESSAGE)"
