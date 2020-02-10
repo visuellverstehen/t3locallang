@@ -1,0 +1,30 @@
+name: TER
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up PHP Version
+        run: sudo update-alternatives --set php /usr/bin/php7.1
+
+      - name: Install requirements
+        run: composer global require --dev helhum/ter-client dev-master
+
+      - name: Cleanup before we upload
+        run: git reset --hard HEAD && git clean -fx
+
+      - name: Create tag message
+        run: TAG_MESSAGE=`git tag -n10 -l $(git describe --tags) | sed 's/^[0-9.]*[ ]*//g'`
+
+      - name: Check tag message
+        run: echo $TAG_MESSAGE
+
+      # - name: Build extension files
+      #   run: composer extension-release
+
+      # - name: Upload
+      #   run: .config/composer/vendor/bin/ter-client upload t3locallang . -u "${{ secrets.TYPO3_ORG_USERNAME }}" -p "${{ secrets.TYPO3_ORG_PASSWORD }}" -m "$TAG_MESSAGE"
