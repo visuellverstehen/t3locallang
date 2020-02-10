@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/visuellverstehen/t3locallang.svg)](https://travis-ci.org/visuellverstehen/t3locallang)
+[![Actions](https://github.com/visuellverstehen/t3locallang/workflows/TER/badge.svg)](https://github.com/visuellverstehen/t3locallang/actions)
 [![Downloads](https://img.shields.io/packagist/dt/visuellverstehen/t3locallang.svg)](https://packagist.org/packages/visuellverstehen/t3locallang)
 
 # t3locallang
