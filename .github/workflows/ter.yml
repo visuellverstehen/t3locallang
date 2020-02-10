@@ -24,4 +24,4 @@ jobs:
         run: composer extension-release
 
       - name: Publish to TER
-        run: .config/composer/vendor/bin/ter-client upload t3locallang . -u "${{ secrets.TYPO3_ORG_USERNAME }}" -p "${{ secrets.TYPO3_ORG_PASSWORD }}" -m "$(cat TAG_MESSAGE)"
+        run: /home/runner/.composer/vendor/bin/ter-client upload t3locallang . -u "${{ secrets.TYPO3_ORG_USERNAME }}" -p "${{ secrets.TYPO3_ORG_PASSWORD }}" -m "$(cat TAG_MESSAGE)"
