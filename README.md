@@ -9,6 +9,6 @@ This extension provides a simple BE module for admins, that will analyize locall
 This repository is work in progress.
 
 ## How to use
-1. Install TYPO3 extension via [composer](https://packagist.org/packages/visuellverstehen/t3googleanalytics), [TER](https://extensions.typo3.org/extension/t3googleanalytics/) or download and install manually.
+1. Install TYPO3 extension via [composer](https://packagist.org/packages/visuellverstehen/t3locallang), [TER](https://extensions.typo3.org/extension/t3locallang/) or download and install manually.
 2. After installation a new module names `t3locallang` should appear under the admin tools group.
 3. After selecting an extension, the module will collect data about missing entries and not used entries.
