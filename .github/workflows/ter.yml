@@ -24,4 +24,4 @@ jobs:
         run: /home/runner/.composer/vendor/bin/tailor set-version --no-docs -- "$(git describe --tags --abbrev=0)"
 
       - name: Publish to TER
-        run: TYPO3_API_USERNAME=${{ secrets.TYPO3_ORG_USERNAME }} TYPO3_API_PASSWORD=${{ secrets.TYPO3_ORG_PASSWORD }} /home/runner/.composer/vendor/bin/tailor ter:publish --comment "$(git tag -n10 -l $(git describe --abbrev=0 --tags) | sed 's/^[0-9.]*[ ]*//g')" "$(git describe --tags --abbrev=0)" "t3googleanalytics"
+        run: TYPO3_API_USERNAME=${{ secrets.TYPO3_ORG_USERNAME }} TYPO3_API_PASSWORD=${{ secrets.TYPO3_ORG_PASSWORD }} /home/runner/.composer/vendor/bin/tailor ter:publish --comment "$(git tag -n10 -l $(git describe --abbrev=0 --tags) | sed 's/^[0-9.]*[ ]*//g')" "$(git describe --tags --abbrev=0)" "t3locallang"
