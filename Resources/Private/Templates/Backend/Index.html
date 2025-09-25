@@ -1,0 +1,11 @@
+<div class="module">
+    <div class="module-body">
+        <h1><f:translate key="mlang_tabs_tab" extensionName="t3locallang" /></h1>
+
+        <f:be.infobox title="{f:translate(key: 'index.headline', extensionName: 't3locallang')}" message="{f:translate(key: 'index.explanation', extensionName: 't3locallang')}" state="-1" iconName="content-info" />
+
+        <f:for each="{extensions}" as="extension">
+            <f:be.link class="btn btn-default" route="tools_t3locallang.collect" parameters="{extension: extension}">{extension}</f:be.link>
+        </f:for>
+    </div>
+</div>

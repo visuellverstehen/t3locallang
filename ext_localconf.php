@@ -8,9 +8,6 @@ defined('TYPO3') or die();
             templateRootPaths {
                 10 = EXT:t3locallang/Resources/Private/Backend/Templates/
             }
-            layoutRootPaths {
-               10 = EXT:t3locallang/Resources/Private/Backend/Layouts/
-            }
         }
     }
 ');

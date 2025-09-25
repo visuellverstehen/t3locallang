@@ -5,14 +5,14 @@ $EM_CONF[$_EXTKEY] = [
     'description' => 'An extension that analyzies and compares locallang files.',
     'category' => 'be',
     'author' => 'visuellverstehen',
-    'author_email' => 'kontakt@visuellverstehen.de',
+    'author_email' => 'hello@visuellverstehen.de',
     'author_company' => 'visuellverstehen',
     'state' => 'stable',
-    'version' => '0.3.1',
+    'version' => '0.4.0',
     'clearCacheOnLoad' => 0,
     'constraints' => [
         'depends' => [
-            'typo3' => '10.4.0-11.5.99',
-        ]
-    ]
+            'typo3' => '13.0.0-13.4.99',
+        ],
+    ],
 ];

@@ -7,13 +7,12 @@
     "authors": [
         {
             "name": "visuellverstehen",
-            "email": "kontakt@visuellverstehen.de",
+            "email": "hello@visuellverstehen.de",
             "homepage": "https://www.visuellverstehen.de"
         }
     ],
     "require": {
-        "typo3/cms-core": "^10.4 || ^11.5",
-        "php": "^7.1 || ^8.0"
+        "typo3/cms-core": "^13.0"
     },
     "autoload": {
         "psr-4": {
